@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  shadow-api:
+    build: ./shadow-api
+    container_name: shadow-api
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - crapi-net
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog
+    ports:
+      - "8025:8025"
+    networks:
+      - crapi-net
+
+  crapi-web:
+    image: crapi/crapi-web:latest
+    container_name: crapi-web
+    ports:
+      - "8888:8080"
+    depends_on:
+      - postgresdb
+    networks:
+      - crapi-net
+    restart: unless-stopped
+
+  postgresdb:
+    image: postgres:13
+    container_name: postgresdb
+    environment:
+      POSTGRES_DB: crapi
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: crapisecretpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - crapi-net
+
+networks:
+  crapi-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
