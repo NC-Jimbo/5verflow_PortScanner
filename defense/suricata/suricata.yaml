@@ -1,0 +1,201 @@
+#서영님 작업장소
+
+# ===== 기본 변수 설정 =====
+vars:
+  address-groups:
+    HOME_NET: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,127.0.0.0/8]"
+    EXTERNAL_NET: "!$HOME_NET"
+    HTTP_SERVERS: "$HOME_NET"
+    
+  port-groups:
+    HTTP_PORTS: "[80,8080,8888,3000,5000,8000,9000]"
+    API_PORTS: "[8080,8888,3000,5000,9090]"
+    HTTPS_PORTS: "[443,8443]"
+
+# ===== 로그 저장 위치 =====
+default-log-dir: /var/log/suricata/
+
+# ===== 출력 설정 (로그 형식) =====
+outputs:
+  # 빠른 알림 로그
+  - fast:
+      enabled: yes
+      filename: fast.log
+      append: yes
+
+  # EVE JSON 로그 (상세 정보)
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      pcap-file: false
+      community-id: true
+      community-id-seed: 0
+      types:
+        # 알림 정보
+        - alert:
+            payload: yes
+            payload-buffer-size: 4kb
+            payload-printable: yes
+            packet: yes
+            metadata: yes
+            http-body: yes
+            http-body-printable: yes
+            tagged-packets: yes
+
+        # HTTP 트래픽 상세 로깅
+        - http:
+            enabled: yes
+            extended: yes
+            # API 관련 중요 헤더들
+            custom: [Accept, Accept-Encoding, Accept-Language, Authorization, 
+                    Content-Type, User-Agent, X-Forwarded-For, X-Real-IP,
+                    X-API-Key, API-Key, Bearer, JWT]
+            dump-all-headers: [both]
+
+        # 플로우 및 이상행동 정보
+        - flow:
+            enabled: yes
+        - anomaly:
+            enabled: yes
+            types:
+              decode: yes
+              stream: yes
+              applayer: yes
+
+# ===== 애플리케이션 레이어 설정 =====
+app-layer:
+  protocols:
+    http:
+      enabled: yes
+      libhtp:
+        default-config:
+          personality: IDS
+          request-body-limit: 500kb
+          response-body-limit: 500kb
+          request-body-minimal-inspect-size: 32kb
+          request-body-inspect-window: 4kb
+          response-body-minimal-inspect-size: 40kb
+          response-body-inspect-window: 16kb
+          http-body-inline: auto
+          double-decode-path: yes
+          double-decode-query: yes
+          uri-include-all: yes
+
+    tls:
+      enabled: yes
+      detection-ports:
+        dp: "[443,8443]"
+
+# ===== 룰 파일 설정 =====
+default-rule-path: /etc/suricata/rules
+
+rule-files:
+  - api-security.rules
+  - owasp-api-top10.rules
+  - jwt-attacks.rules
+  - injection-attacks.rules
+  - bola-attacks.rules
+  - rate-limiting.rules
+
+# ===== 분류 및 참조 파일 =====
+classification-file: /etc/suricata/classification.config
+reference-config-file: /etc/suricata/reference.config
+threshold-file: /etc/suricata/threshold.config
+
+# ===== 성능 설정 =====
+threading:
+  set-cpu-affinity: no
+  cpu-affinity:
+    - management-cpu-set:
+        cpu: [ 0 ]  
+    - receive-cpu-set:
+        cpu: [ 0 ]
+    - worker-cpu-set:
+        cpu: [ "all" ]
+  detect-thread-ratio: 1.0
+
+# ===== 메모리 설정 =====
+flow:
+  memcap: 128mb
+  hash-size: 65536
+  prealloc: 10000
+  emergency-recovery: 30
+
+stream:
+  memcap: 64mb
+  checksum-validation: yes
+  inline: auto
+  reassembly:
+    memcap: 256mb
+    depth: 1mb
+    toserver-chunk-size: 2560
+    toclient-chunk-size: 2560
+    randomize-chunk-size: yes
+
+defrag:
+  memcap: 32mb
+  hash-size: 65536
+  trackers: 65536
+  max-frags: 65536
+  prealloc: yes
+  timeout: 60
+
+# ===== 기타 설정 =====
+host-table:
+  hash-size: 4096
+  prealloc: 1000
+
+detect-engine:
+  - profile: medium
+  - custom-values:
+      toclient-groups: 3
+      toserver-groups: 25
+  - sgh-mpm-context: auto
+  - inspection-recursion-limit: 3000
+
+default-log-level: info
+default-log-format: "[%i] %t - (%f:%l) <%d> (%n) -- "
+
+stats:
+  enabled: yes
+  filename: stats.log
+  totals: yes
+  threads: no
+  deltas: no
+
+unix-command:
+  enabled: auto
+
+pcap-file:
+  checksum-checks: auto
+
+include: /etc/suricata/enable-all.conf
+
+engine-analysis:
+  rules-fast-pattern: yes
+  rules: yes
+
+profiling:
+  rules:
+    enabled: yes
+    filename: rule_perf.log
+    append: yes
+    sort: avgticks
+    limit: 10
+  keywords:
+    enabled: yes
+    filename: keyword_perf.log
+    append: yes
+  rulegroups:
+    enabled: yes
+    filename: rule_group_perf.log
+    append: yes
+
+af-packet:
+  - interface: eth0
+    threads: auto
+    cluster-id: 99
+    cluster-type: cluster_flow
+    defrag: yes
+  - interface: default
