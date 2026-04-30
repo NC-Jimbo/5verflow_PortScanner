@@ -88,15 +88,11 @@ app-layer:
         dp: "[443,8443]"
 
 # ===== 룰 파일 설정 =====
-default-rule-path: /etc/suricata/rules
+default-rule-path: /etc/suricata/detection-rules
 
 rule-files:
   - api-security.rules
   - owasp-api-top10.rules
-  - jwt-attacks.rules
-  - injection-attacks.rules
-  - bola-attacks.rules
-  - rate-limiting.rules
 
 # ===== 분류 및 참조 파일 =====
 classification-file: /etc/suricata/classification.config
