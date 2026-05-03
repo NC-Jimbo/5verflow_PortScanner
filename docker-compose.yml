@@ -1,0 +1,86 @@
+services:
+
+  # ── 취약 마이크로서비스 ──────────────────────────────────────────────────
+
+  user-api:
+    build: ./services/user-api
+    container_name: user-api
+    ports:
+      - "3001:3001"
+    environment:
+      - PRODUCT_API_URL=http://product-api:3002
+    networks:
+      - microservice-net
+    restart: unless-stopped
+
+  product-api:
+    build: ./services/product-api
+    container_name: product-api
+    ports:
+      - "3002:3002"
+    environment:
+      - PAYMENT_API_URL=http://payment-api:3003
+      - USER_API_URL=http://user-api:3001
+    networks:
+      - microservice-net
+    restart: unless-stopped
+    depends_on:
+      - payment-api
+
+  payment-api:
+    build: ./services/payment-api
+    container_name: payment-api
+    ports:
+      - "3003:3003"
+    networks:
+      - microservice-net
+    restart: unless-stopped
+
+  # ── nginx 리버스 프록시 ────────────────────────────────────────────────
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "18080:80"
+    volumes:
+      - ./services/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx-logs:/var/log/nginx
+    networks:
+      - microservice-net
+    depends_on:
+      - user-api
+      - product-api
+      - payment-api
+      - flask-dashboard
+    restart: unless-stopped
+
+  # ── Blue Team: Flask 대시보드 ──────────────────────────────────────────
+
+  flask-dashboard:
+    build: ./defense/flask
+    container_name: flask-dashboard
+    ports:
+      - "5000:5000"
+    environment:
+      - EVE_JSON_PATH=/suricata/eve.json
+      # 스캐너가 마이크로서비스를 내부 DNS로 찾을 수 있도록
+      - SCANNER_USER_API=http://user-api:3001
+      - SCANNER_PRODUCT_API=http://product-api:3002
+      - SCANNER_PAYMENT_API=http://payment-api:3003
+    volumes:
+      - ./defense/suricata:/suricata:ro
+    networks:
+      - microservice-net
+    depends_on:
+      - user-api
+      - product-api
+      - payment-api
+    restart: unless-stopped
+
+networks:
+  microservice-net:
+    driver: bridge
+
+volumes:
+  nginx-logs:
