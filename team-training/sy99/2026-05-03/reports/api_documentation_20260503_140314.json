@@ -1,0 +1,245 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Discovered API - http://localhost:3000",
+    "version": "1.0.0",
+    "description": "Auto-discovered API endpoints"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "paths": {
+    "/rest/user/login": {
+      "get": {
+        "summary": "Endpoint: /rest/user/login",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/rest/user/register": {
+      "get": {
+        "summary": "Endpoint: /rest/user/register",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/api/login": {
+      "get": {
+        "summary": "Endpoint: /api/login",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/api/auth": {
+      "get": {
+        "summary": "Endpoint: /api/auth",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/api/token": {
+      "get": {
+        "summary": "Endpoint: /api/token",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "summary": "Endpoint: /api/users",
+        "responses": {
+          "401": {
+            "description": "Status: 401"
+          }
+        }
+      }
+    },
+    "/rest/user/whoami": {
+      "get": {
+        "summary": "Endpoint: /rest/user/whoami",
+        "responses": {
+          "200": {
+            "description": "Status: 200"
+          }
+        }
+      }
+    },
+    "/api/profile": {
+      "get": {
+        "summary": "Endpoint: /api/profile",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/rest/user/data-export": {
+      "get": {
+        "summary": "Endpoint: /rest/user/data-export",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "summary": "Endpoint: /api/products",
+        "responses": {
+          "200": {
+            "description": "Status: 200"
+          }
+        }
+      }
+    },
+    "/rest/products/search": {
+      "get": {
+        "summary": "Endpoint: /rest/products/search",
+        "responses": {
+          "200": {
+            "description": "Status: 200"
+          }
+        }
+      }
+    },
+    "/api/items": {
+      "get": {
+        "summary": "Endpoint: /api/items",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "summary": "Endpoint: /api/orders",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/api/basket": {
+      "get": {
+        "summary": "Endpoint: /api/basket",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/rest/basket": {
+      "get": {
+        "summary": "Endpoint: /rest/basket",
+        "responses": {
+          "401": {
+            "description": "Status: 401"
+          }
+        }
+      }
+    },
+    "/api/feedbacks": {
+      "get": {
+        "summary": "Endpoint: /api/feedbacks",
+        "responses": {
+          "200": {
+            "description": "Status: 200"
+          }
+        }
+      }
+    },
+    "/rest/products/reviews": {
+      "get": {
+        "summary": "Endpoint: /rest/products/reviews",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/api/admin": {
+      "get": {
+        "summary": "Endpoint: /api/admin",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/rest/admin/application-version": {
+      "get": {
+        "summary": "Endpoint: /rest/admin/application-version",
+        "responses": {
+          "200": {
+            "description": "Status: 200"
+          }
+        }
+      }
+    },
+    "/api/config": {
+      "get": {
+        "summary": "Endpoint: /api/config",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/api/version": {
+      "get": {
+        "summary": "Endpoint: /api/version",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/rest/track-order": {
+      "get": {
+        "summary": "Endpoint: /rest/track-order",
+        "responses": {
+          "500": {
+            "description": "Status: 500"
+          }
+        }
+      }
+    },
+    "/api/challenges": {
+      "get": {
+        "summary": "Endpoint: /api/challenges",
+        "responses": {
+          "200": {
+            "description": "Status: 200"
+          }
+        }
+      }
+    }
+  }
+}

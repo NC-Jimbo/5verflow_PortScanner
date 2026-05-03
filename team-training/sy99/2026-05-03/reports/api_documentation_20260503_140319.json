@@ -1,0 +1,14 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Discovered API - http://localhost:8888",
+    "version": "1.0.0",
+    "description": "Auto-discovered API endpoints"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8888"
+    }
+  ],
+  "paths": {}
+}

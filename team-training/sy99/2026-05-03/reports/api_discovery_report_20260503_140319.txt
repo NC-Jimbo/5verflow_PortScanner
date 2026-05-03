@@ -1,0 +1,6 @@
+API Discovery Report
+============================================================
+Target: http://localhost:8888
+Time: 2026-05-03 14:03:19.379640
+Total APIs: 0
+

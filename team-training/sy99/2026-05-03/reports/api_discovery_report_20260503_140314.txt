@@ -1,0 +1,98 @@
+API Discovery Report
+============================================================
+Target: http://localhost:3000
+Time: 2026-05-03 14:03:14.926643
+Total APIs: 23
+
+Endpoint: /rest/user/login
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /rest/user/register
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/login
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/auth
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/token
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/users
+Status: 401
+Auth: True
+------------------------------------------------------------
+Endpoint: /rest/user/whoami
+Status: 200
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/profile
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /rest/user/data-export
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/products
+Status: 200
+Auth: False
+------------------------------------------------------------
+Endpoint: /rest/products/search
+Status: 200
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/items
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/orders
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/basket
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /rest/basket
+Status: 401
+Auth: True
+------------------------------------------------------------
+Endpoint: /api/feedbacks
+Status: 200
+Auth: False
+------------------------------------------------------------
+Endpoint: /rest/products/reviews
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/admin
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /rest/admin/application-version
+Status: 200
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/config
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/version
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /rest/track-order
+Status: 500
+Auth: False
+------------------------------------------------------------
+Endpoint: /api/challenges
+Status: 200
+Auth: False
+------------------------------------------------------------
