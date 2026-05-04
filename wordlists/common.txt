@@ -1,0 +1,10 @@
+admin
+api
+v1
+login
+config
+.env
+db
+test
+backup
+swagger
