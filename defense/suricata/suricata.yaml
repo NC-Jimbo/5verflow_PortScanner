@@ -93,6 +93,7 @@ default-rule-path: /etc/suricata/detection-rules
 rule-files:
   - api-security.rules
   - owasp-api-top10.rules
+  - sql_attack.rules
 
 # ===== 분류 및 참조 파일 =====
 classification-file: /etc/suricata/classification.config
@@ -189,7 +190,7 @@ profiling:
     append: yes
 
 af-packet:
-  - interface: eth0
+  - interface: enp3s0 
     threads: auto
     cluster-id: 99
     cluster-type: cluster_flow

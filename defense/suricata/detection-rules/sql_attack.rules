@@ -1,0 +1,121 @@
+# ===============================================
+# 1. MSSQL 기본 접근 탐지
+# ===============================================
+
+# SID 2000001: 1433 포트로의 모든 접근을 탐지 (포트 스캐너로 MSSQL 서비스 발견 시도)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Port 1433 Access Detected - Basic Service Discovery"; flow:established,to_server; sid:2000001; rev:1;)
+
+# SID 2000002: 60초 내 10회 이상 연결 시도 탐지 (자동화된 포트 스캔 또는 연결 테스트)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Multiple Connection Attempts - Automated Port Scanning"; flow:established,to_server; detection_filter:track by_src, count 10, seconds 60; sid:2000002; rev:1;)
+
+# ===============================================
+# 2. 인증 공격 탐지 (패스워드 크래킹)
+# ===============================================
+
+# SID 2000003: sa 계정에 대한 브루트포스 공격 (30초 내 5회 이상 sa 계정 로그인 시도)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL sa Account Brute Force - Password Cracking Attack"; flow:established,to_server; content:"sa"; nocase; detection_filter:track by_src, count 3, seconds 60; sid:2000003; rev:1;)
+
+# SID 2000004: 로그인 실패 메시지 탐지 (잘못된 인증 정보로 인한 로그인 실패)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Login Failed - Invalid Credentials Attack"; flow:established,to_server; content:"Login failed"; nocase; sid:2000004; rev:1;)
+
+# SID 2000005: 기본 계정명으로 로그인 시도 탐지 (admin, administrator, root, guest 등)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Default Account Attack - Common Username Enumeration"; flow:established,to_server; pcre:"/(?i)(admin|administrator|root|guest)/"; sid:2000005; rev:1;)
+
+# ===============================================
+# 3. SQL Injection 공격 탐지 (웹 애플리케이션 취약점 악용)
+# ===============================================
+
+# SID 2000006: Union-based SQL Injection 탐지 (UNION SELECT로 데이터베이스 정보 추출 시도)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] SQL Injection - Union-based Data Extraction Attack"; flow:established,to_server; content:"union"; nocase; content:"select"; nocase; distance:0; within:20; sid:2000006; rev:1;)
+
+# SID 2000007: 데이터베이스 스키마 정보 수집 (테이블, 컬럼 구조 파악을 위한 information_schema 접근)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] SQL Injection - Database Structure Reconnaissance"; flow:established,to_server; content:"information_schema"; nocase; sid:2000007; rev:1;)
+
+# SID 2000008: 시스템 함수 호출 탐지 (@@version, @@servername 등으로 서버 정보 수집)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] SQL Injection - System Information Gathering"; flow:established,to_server; pcre:"/(?i)(@@version|@@servername|user\(\)|database\(\))/"; sid:2000008; rev:1;)
+
+# SID 2000009: Time-based Blind SQL Injection (WAITFOR DELAY로 응답 지연을 통한 정보 추출)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] SQL Injection - Time-based Blind Information Extraction"; flow:established,to_server; content:"waitfor"; nocase; content:"delay"; nocase; distance:0; within:20; sid:2000009; rev:1;)
+
+# SID 2000010: Boolean-based Blind SQL Injection (SUBSTRING, ASCII 함수로 문자별 정보 추출)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] SQL Injection - Boolean-based Character Extraction"; flow:established,to_server; pcre:"/(?i)(substring|ascii|len)\s*\(/"; sid:2000010; rev:1;)
+
+# ===============================================
+# 4. 권한 상승 및 시스템 명령어 실행 탐지 (RCE 공격)
+# ===============================================
+
+# SID 2000011: xp_cmdshell 저장 프로시저 호출 탐지 (OS 명령어 실행을 위한 기능 활성화)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Remote Code Execution - xp_cmdshell Activation"; flow:established,to_server; content:"xp_cmdshell"; nocase; sid:2000011; rev:1;)
+
+# SID 2000012: 시스템 설정 변경 탐지 (sp_configure로 보안 설정 우회 시도)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Security Configuration Bypass Attempt"; flow:established,to_server; content:"sp_configure"; nocase; sid:2000012; rev:1;)
+
+# SID 2000013: 설정 재구성 명령어 탐지 (변경된 설정을 적용하기 위한 RECONFIGURE 실행)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Configuration Apply - Security Setting Override"; flow:established,to_server; content:"RECONFIGURE"; nocase; sid:2000013; rev:1;)
+
+# SID 2000014: OS 명령어 실행 패턴 탐지 (xp_cmdshell을 통한 시스템 정보 수집 및 파일 조작)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL OS Command Execution - System Reconnaissance"; flow:established,to_server; pcre:"/(?i)(whoami|net user|ipconfig|dir|type|copy)/"; sid:2000014; rev:1;)
+
+# ===============================================
+# 5. 데이터 유출 탐지 (Data Exfiltration)
+# ===============================================
+
+# SID 2000015: BCP 유틸리티를 통한 대량 데이터 덤프 탐지 (데이터베이스 전체 백업 및 유출)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Bulk Data Exfiltration via BCP Utility"; flow:established,to_server; content:"bcp"; nocase; sid:2000015; rev:1;)
+
+# SID 2000016: 직원 테이블 대량 조회 탐지 (민감한 개인정보가 포함된 Employees 테이블 접근)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Employee Data Theft - Personal Information Access"; flow:established,to_server; content:"SELECT"; nocase; content:"FROM"; nocase; content:"Employees"; nocase; sid:2000016; rev:1;)
+
+# SID 2000017: PowerShell을 통한 외부 데이터 전송 탐지 (Invoke-WebRequest로 탈취 데이터 외부 서버 전송)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Data Exfiltration via PowerShell Web Request"; flow:established,to_server; content:"powershell"; nocase; content:"Invoke-WebRequest"; nocase; sid:2000017; rev:1;)
+
+# SID 2000018: 민감한 정보 테이블 접근 탐지 (사용자, 직원, 고객, 신용카드, 주민번호, 급여 정보 접근)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Sensitive Data Access - PII and Financial Information"; flow:established,to_server; pcre:"/(?i)(users|employees|customers|credit|ssn|salary)/"; sid:2000018; rev:1;)
+
+# SID 2000019: 와일드카드 전체 데이터 조회 탐지 (SELECT * 패턴으로 테이블 전체 데이터 무차별 추출)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Bulk Data Dump - Wildcard Table Extraction"; flow:established,to_server; content:"SELECT"; nocase; content:"*"; nocase; content:"FROM"; nocase; sid:2000019; rev:1;)
+
+# ===============================================
+# 6. 고급 지속성 공격 탐지 (APT-style Attacks)
+# ===============================================
+
+# SID 2000020: 백도어 생성 시도 탐지 (트리거, 저장프로시저, 함수 생성으로 지속적 접근 권한 확보)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Persistence Backdoor Creation - Trigger/Procedure Implant"; flow:established,to_server; pcre:"/(?i)(create\s+trigger|create\s+procedure|create\s+function)/"; sid:2000020; rev:1;)
+
+# SID 2000021: 권한 상승 시도 탐지 (GRANT, ALTER ROLE로 관리자 권한 획득 시도)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Privilege Escalation - Administrative Rights Acquisition"; flow:established,to_server; pcre:"/(?i)(grant|alter\s+role|sp_addsrvrolemember)/"; sid:2000021; rev:1;)
+
+# SID 2000022: 로그 삭제/조작 시도 탐지 (공격 흔적 제거를 위한 로그 파일 삭제)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Anti-Forensics - Log Deletion and Evidence Removal"; flow:established,to_server; pcre:"/(?i)(truncate|delete.*log|drop.*log)/"; sid:2000022; rev:1;)
+
+# ===============================================
+# 7. 데이터베이스 구조 탐지 (Database Enumeration)
+# ===============================================
+
+# SID 2000023: 데이터베이스 목록 열거 (sys.databases로 서버 내 모든 데이터베이스 목록 수집)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Database Enumeration - Server Database Discovery"; flow:established,to_server; content:"sys.databases"; nocase; sid:2000023; rev:1;)
+
+# SID 2000024: 테이블 목록 열거 (sys.tables로 데이터베이스 내 모든 테이블 구조 파악)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Table Enumeration - Database Schema Discovery"; flow:established,to_server; content:"sys.tables"; nocase; sid:2000024; rev:1;)
+
+# SID 2000025: 컬럼 정보 열거 (sys.columns로 테이블 내 컬럼명과 데이터 타입 정보 수집)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Column Enumeration - Table Structure Analysis"; flow:established,to_server; content:"sys.columns"; nocase; sid:2000025; rev:1;)
+
+# SID 2000026: 사용자 계정 열거 (sys.sql_logins로 서버 내 모든 로그인 계정 정보 수집)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL User Account Enumeration - Login Discovery"; flow:established,to_server; content:"sys.sql_logins"; nocase; sid:2000026; rev:1;)
+
+# SID 2000027: 권한 확인 시도 (HAS_PERMS_BY_NAME으로 현재 계정의 권한 범위 확인)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Permission Reconnaissance - Access Rights Analysis"; flow:established,to_server; content:"HAS_PERMS_BY_NAME"; nocase; sid:2000027; rev:1;)
+
+# ===============================================
+# 8. 추가 고급 공격 패턴
+# ===============================================
+
+# SID 2000028: 파일 시스템 접근 (OPENROWSET, BULK INSERT로 서버 파일 시스템 접근)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL File System Access - Server File Reading Attempt"; flow:established,to_server; pcre:"/(?i)(openrowset|bulk\s+insert)/"; sid:2000028; rev:1;)
+
+# SID 2000029: 네트워크 연결 시도 (OPENROWSET으로 외부 서버 연결 및 데이터 전송)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL External Network Connection - Data Exfiltration Channel"; flow:established,to_server; content:"SQLNCLI"; nocase; sid:2000029; rev:1;)
+
+# SID 2000030: 암호화된 데이터 해독 시도 (DECRYPTBYKEY, OPEN SYMMETRIC KEY로 암호화 우회)
+alert tcp any any -> any 1433 (msg:"[RED-TEAM-ATTACK] MSSQL Encryption Bypass - Encrypted Data Decryption Attempt"; flow:established,to_server; pcre:"/(?i)(decryptbykey|open\s+symmetric\s+key)/"; sid:2000030; rev:1;)
