@@ -1,33 +1,24 @@
 version: '3.8'
+services:
+  vulnerable-mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: blue-mssql-1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123!     # Red Team 쉽게 뚫음
+    ports:
+      - "1433:1433"                        # Blue Team이 의도적으로 오픈
+    volumes:version: '3.8'
 
 services:
-  shadow-api:
-    build: ./shadow-api
-    container_name: shadow-api
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
-    networks:
-      - crapi-net
-
-  mailhog:
-    image: mailhog/mailhog:latest
-    container_name: mailhog
-    ports:
-      - "8025:8025"
-    networks:
-      - crapi-net
-
   crapi-web:
     image: crapi/crapi-web:latest
     container_name: crapi-web
     ports:
       - "8888:8080"
-    depends_on:
-      - postgresdb
+    restart: unless-stopped
     networks:
       - crapi-net
-    restart: unless-stopped
 
   postgresdb:
     image: postgres:13
@@ -47,3 +38,11 @@ networks:
 
 volumes:
   postgres_data:
+      - ./data:/var/opt/mssql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - blue-net
+
+networks:
+  blue-net:
+    driver: bridge

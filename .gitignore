@@ -3,3 +3,6 @@ filebeat-*.deb
 5verflow_PortScanner/
 __pycache__/
 *.log
+defense/mssql/data/
+*.log
+eve.json
