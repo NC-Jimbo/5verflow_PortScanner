@@ -1,17 +1,18 @@
 import subprocess
+import time
 import os
 from datetime import datetime
-import sys
 
-# 1. 설정 (방금 확인한 컨테이너 이름 적용)
+# 설정
 CONTAINER_NAME = "crapi-web"
 MATRIX_PATH = "attack_detection_matrix.md"
 
-# 2. 공격 탐지 패턴
+# 탐지 패턴 (Velog 시나리오 기반)
 ATTACK_PATTERNS = {
+    "Nmap Scanning": ["nmap", "nmap/"],
     "SQL Injection": ["union", "select", "insert", "drop", "--", "' or '", "%27"],
-    "XSS": ["<script", "alert(", "onclick", "<img"],
-    "BOLA/API": ["/api/v1/user/", "/api/v1/admin/"]
+    "XSS Attack": ["<script", "alert(", "onclick"],
+    "BOLA (API Abuse)": ["/api/v1/user/", "/api/v1/admin/"]
 }
 
 def log_event(subject, action, target, status_code, detail):
@@ -23,52 +24,43 @@ def log_event(subject, action, target, status_code, detail):
     with open(MATRIX_PATH, "a", encoding="utf-8") as f:
         f.write(entry)
         f.flush()
-    
-    # 터미널에 즉시 출력 (지연 없음)
-    print(f"\n🚀 [REAL-TIME DETECTED] {detail} | Status: {status_code}", flush=True)
 
-def monitor_direct():
-    print(f"🛰️ [System] Docker 다이렉트 스트리밍 가동 중... ({CONTAINER_NAME})", flush=True)
-    
-    if not os.path.exists(MATRIX_PATH):
-        with open(MATRIX_PATH, "w", encoding="utf-8") as f:
-            f.write("| 일시 | 주체 | 행위 | 타겟 | 결과 | 상세 내용 |\n")
-            f.write("| :--- | :--- | :--- | :--- | :--- | :--- |\n")
+def run_optimized():
+    # 실행 시 파일 초기화
+    with open(MATRIX_PATH, "w", encoding="utf-8") as f:
+        f.write("| 일시 | 주체 | 행위 | 타겟 | 결과 | 상세 내용 |\n")
+        f.write("| :--- | :--- | :--- | :--- | :--- | :--- |\n")
 
-    # [핵심] Docker 로그를 실시간 파이프로 직접 가져옵니다. (파일 시스템 우회)
+    print(f"🚀 [최적화 가동] 서버 보호 로직이 적용된 관제 엔진 시작...")
+
+    # 1. --tail 0: 이전 로그를 무시하고 실행 시점부터 분석하여 초기 과부하 방지
     cmd = ["sudo", "docker", "logs", "-f", "--tail", "0", CONTAINER_NAME]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
-    print("🔍 분석 대기 중... 공격을 날려보세요.", flush=True)
-
     try:
         for line in process.stdout:
-            line = line.strip()
-            if not line: continue
+            # 2. [서버 생존 핵심] CPU 가용성 확보를 위한 미세 지연
+            time.sleep(0.03) 
             
-            # 실시간 데이터 흐름 시각화
-            sys.stdout.write(f"\r📡 [Streaming] {line[:70]}...")
-            sys.stdout.flush()
+            line = line.strip().lower()
+            if not line or len(line) > 500: continue # 3. 너무 긴 비정상 로그(DDoS 등)는 무시하여 메모리 보호
 
-            # 상태 코드 추출 로직
+            # 상태 코드 추출 (공백 기준 분할 후 3자리 숫자 탐색)
             parts = line.split()
-            status_code = "???"
-            for p in parts:
-                if p.isdigit() and len(p) == 3:
-                    status_code = p
-                    break
-            
-            line_lower = line.lower()
+            status_code = next((p for p in parts if p.isdigit() and len(p) == 3), "???")
+
+            # 탐지 로직 실행
             for attack_name, keywords in ATTACK_PATTERNS.items():
-                if any(key in line_lower for key in keywords):
-                    attacker_ip = parts[0] if parts else "Unknown"
-                    log_event("RED", "Attack", attacker_ip, status_code, attack_name)
+                if any(key in line for key in keywords):
+                    log_event("RED", "Attack", "crAPI-Target", status_code, attack_name)
+                    # 4. 동일 패턴 폭주 시 시스템 마비를 막기 위한 브레이크
+                    time.sleep(0.01) 
                     break
                     
     except KeyboardInterrupt:
         process.terminate()
-        print("\n👋 종료")
+    except Exception as e:
+        print(f"⚠️ 긴급: 시스템 보호를 위해 엔진이 일시 정지되었습니다: {e}")
 
 if __name__ == "__main__":
-    monitor_direct()
-    #test
+    run_optimized()
