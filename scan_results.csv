@@ -1,0 +1,6 @@
+timestamp,attacker_ip,endpoint,attack_type,result,severity
+2026-05-13 10:38:49,192.168.0.15,/api/v1/user/profile,BOLA,Critical,8.3
+2026-05-13 10:38:50,192.168.0.15,/api/v1/login,Brute Force,Safe,0.0
+2026-05-13 10:38:51,192.168.0.15,/api/v1/data/export,Mass Assignment,Critical,9.5
+2026-05-13 10:38:52,192.168.0.15,/api/v1/admin/config,Broken Auth,Critical,8.1
+2026-05-13 10:38:54,192.168.0.15,/api/v1/check/health,Safe,Safe,0.0
