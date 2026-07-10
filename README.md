@@ -43,10 +43,10 @@
 
 ## 나의 주요 역할 (Blue Team - 인프라 담당)
 - AWS EC2 Ubuntu 서버 구축 및 운영
-- 팀원들을 위한 **VSCode Remote-SSH 접속 가이드** 작성 및 교육
+- 팀원들을 위한 **VSCode Remote-SSH 접속 가이드** 작성 및 배포
 - 개발 환경 구성
   - Python 패키지 설치 및 Docker 컨테이너 환경 구축
-  - MSSQL 포트 오픈 및 Port Scanner 연동 준비
+  - MSSQL 포트 오픈 및 flag배치 Port Scanner 연동 준비
   - 팀원별 사용자 계정 생성 및 권한 격리 (계정 충돌 방지)
 - 이전 OSINT 프로젝트 경험을 바탕으로 **안정적인 다중 사용자 환경** 구축
 
